@@ -1,0 +1,8 @@
+/bin/
+*.jar
+*.war
+*.ear
+*.fasta
+*.txt
+/input/
+*.fasta
