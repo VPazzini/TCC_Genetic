@@ -49,7 +49,11 @@ public class Individual {
 	public String getSequence() {
 		return sequence;
 	}
-
+	
+	public String getRevSequence() {
+		return revSequence;
+	}
+	
 	public void setSequence(String sequence) {
 		this.sequence = sequence;
 	}
@@ -153,10 +157,10 @@ public class Individual {
 			output = new BufferedWriter(new FileWriter(file, true));
 			// writer = new PrintWriter("output.txt", "UTF-8");
 
-			output.write("Motif " + sequence + "\n");
-			output.write(matches.size() + ": Occurences:\n");
+			output.write("Motif: " + sequence + "| Fitness: " + this.fitness + "\n");
+			output.write(matches.size() + " Occurences:\n");
 			for (String m : matches) {
-				output.write(m + "\n");
+				output.write(m + " | " + Population.getInstance().find(this.sequence, m) + "\n");
 			}
 			float[][] m = matrix();
 			for (int j = 0; j < 4; j++) {

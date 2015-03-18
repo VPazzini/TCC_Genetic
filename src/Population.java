@@ -38,6 +38,25 @@ public class Population {
 		totalFitness = 0;
 	}
 
+	private String reverse(String sequence) {
+		String rev = "";
+		for (int i = sequence.length() - 1; i >= 0; i--) {
+			if (sequence.charAt(i) == 'A') {
+				rev += 'T';
+			}
+			if (sequence.charAt(i) == 'C') {
+				rev += 'G';
+			}
+			if (sequence.charAt(i) == 'T') {
+				rev += 'A';
+			}
+			if (sequence.charAt(i) == 'G') {
+				rev += 'C';
+			}
+		}
+		return rev;
+	}
+
 	public void generatePopulation(int size, int motifSize) {
 		for (int i = 0; i < size; i++) {
 			Individual ind = new Individual(generateMotif(motifSize));
@@ -98,12 +117,6 @@ public class Population {
 
 		}
 
-		/*for (Individual ind : temp) {
-			System.out.println(ind.consensus());
-		}
-		System.out.println("finished");
-		 */
-		//for (int i = 0; i < size; i++) {
 		for (int i = 0; i < temp.size(); i++) {
 			individuals.add(new Individual(temp.get(i).consensus()));
 		}
@@ -151,7 +164,7 @@ public class Population {
 	}
 
 	public float findInSequence(Individual ind, String seq, boolean verbose) {
-		float match, temp = 0;
+		float match1, match2, temp = 0;
 		String s = "";
 		String subSeq = "";
 		String tempSeq = "";
@@ -159,19 +172,17 @@ public class Population {
 		for (int i = 0; i < seq.length() - motif.length(); i++) {
 			subSeq = seq.substring(i, i + motif.length());
 
-			match = find2(motif, subSeq);
-			//if (match >= 0.8 && match > temp) {
-			/*if(match > 0){
-				System.out.println(match);
-			}*/
-			if (match/motif.length() >= 0.5 && match > temp) {
-				temp = match;
-				// temp *= temp * temp;
+			match1 = find(motif, subSeq);
+			match2 = find(ind.getRevSequence(), subSeq);
+			if (match1 >= 0.8 && match1 > temp && match1 > match2) {
+			//if (match1 >= Math.pow(2, motif.length()-2)-1 && match1 > temp && match1 >= match2) {
+				temp = match1;
 				tempSeq = subSeq;
-				if (verbose) {
-					s += subSeq + " " + i + " - " + (i + motif.length())
-							+ " | ";
-				}
+			}
+			if (match2 >= 0.8 && match2 > temp && match2 > match1) {
+			//if (match2 >= Math.pow(2, motif.length()-2)-1 && match2 > temp && match2 >= match1) {
+				temp = match2;
+				tempSeq = reverse(subSeq);
 			}
 		}
 		if (!s.equals("")) {
@@ -181,7 +192,7 @@ public class Population {
 			ind.setPresence(ind.getPresence() + 1);
 			ind.setFitness(ind.getFitness() + temp);
 			// ind.setFitness(temp);
-			//ind.getMatches().add(tempSeq + "|" + seq);
+			// ind.getMatches().add(tempSeq + "|" + seq);
 			ind.getMatches().add(tempSeq);
 		}
 		return temp;
@@ -192,7 +203,7 @@ public class Population {
 		if (ind.getFitness() == 1) {
 			int i = 0;
 			for (String seq : sequences) {
-				//System.out.println("seq" + i++);
+				// System.out.println("seq" + i++);
 				findInSequence(ind, seq, verb);
 			}
 		}
@@ -206,7 +217,7 @@ public class Population {
 		this.sort();
 	}
 
-	private float find(String motif, String seq) {
+	public float find(String motif, String seq) {
 		if (motif.length() != seq.length()) {
 			return 0;
 		}
@@ -219,21 +230,21 @@ public class Population {
 		return match / motif.length();
 	}
 
-	private float find2(String motif, String seq) {
+	public float find2(String motif, String seq) {
 		if (motif.length() != seq.length()) {
 			return 0;
 		}
 		float match = 0;
-		int right = 2,wrong = 2;
+		double right = 1, wrong = 1;
 		for (int i = 0; i < motif.length(); i++) {
 			if (motif.charAt(i) == seq.charAt(i)) {
-				match+=right;
-				right *= right;
-				wrong = 2;
+				match += right;
+				right += right;
+				wrong = 1;
 			} else {
-				match-=wrong;
-				wrong*=wrong;
-				right = 2;
+				match -= wrong;
+				wrong += wrong;
+				right = 1;
 			}
 		}
 		return match;

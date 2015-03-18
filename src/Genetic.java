@@ -155,12 +155,12 @@ public class Genetic {
 					do {
 						newInd1 = crossOver(select.roulletSelection(),
 								select.roulletSelection());
-					} while (population.presentInPopulation(newInd1,newPopulation) > 0.9);
+					} while (population.presentInPopulation(newInd1,newPopulation) > 0.8);
 
 					do {
 						newInd2 = crossOver(select.roulletSelection(),
 								select.roulletSelection());
-					} while (population.presentInPopulation(newInd2,newPopulation) > 0.9);
+					} while (population.presentInPopulation(newInd2,newPopulation) > 0.8);
 
 					newPopulation.add(newInd1);
 					newPopulation.add(newInd2);
@@ -200,7 +200,7 @@ public class Genetic {
 		//g.readFile("hm20g.fasta");
 		System.out.println(g.getSequences().size() + " Sequences");
 		for (int k = 0; k < 1; k++) {
-			g.run(1, 100, 11);
+			g.run(50, 100, 11);
 
 			//System.out.println();
 
