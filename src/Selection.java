@@ -1,7 +1,15 @@
 import java.util.Random;
 
 public class Selection {
+	
+	public Individual randomSelection(){
+		Random r = new Random();
 
+		int selected = r.nextInt(Population.getInstance().getPopulation().size());
+		
+		return Population.getInstance().getPopulation().get(selected);
+	}
+	
 	public Individual roulletSelection() {
 		int totalFitness = 0, temp = 0;
 		int selected;

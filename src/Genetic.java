@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
 
 public class Genetic {
 
@@ -14,11 +12,11 @@ public class Genetic {
 	private Population population;
 
 	// private int generation = 0;
-	
-	public Genetic(){
+
+	public Genetic() {
 		this.population = Population.getInstance();
 	}
-	
+
 	public void readFile(String fileName) {
 		try {
 			File newFile = new File(fileName);
@@ -75,8 +73,6 @@ public class Genetic {
 		this.sequences = sequences;
 	}
 
-	
-
 	private float find(String motif, String seq) {
 		if (motif.length() != seq.length()) {
 			return 0;
@@ -90,96 +86,67 @@ public class Genetic {
 		return match / motif.length();
 	}
 
-
-
-	public Individual crossOver(Individual ind1, Individual ind2) {
-		Random r = new Random();
-		// System.out.println(ind1.getSequence().length());
-		int divPoint = r.nextInt(ind1.getSequence().length() - 3) + 1;
-		String seq = ind1.getSequence().substring(0, divPoint);
-		seq += ind2.getSequence().substring(divPoint);
-
-		if (r.nextFloat() <= 0.01) {
-			String[] nucleotides = { "A", "C", "T", "G" };
-			//String n = "ACTG";
-			int pos = r.nextInt(ind1.getSequence().length());
-			/*if (ind1.matrix()[n.lastIndexOf(ind1.getSequence().charAt(pos))][pos] != 1
-					&& ind2.matrix()[n.lastIndexOf(ind2.getSequence().charAt(
-							pos))][pos] != 1) {
-			*/
-				String p1 = seq.substring(0, pos);
-				String p2 = seq.substring(pos + 1);
-				seq = p1 + nucleotides[r.nextInt(4)] + p2;
-			//}
-		}
-
-		Individual ind = new Individual(seq);
-
-		//if (!population.contains(ind)) {
-			return ind;
-		/*}
-		return new Individual(generateMotif(ind1.getSequence().length()));
-		*/
-	}
-
-
 	public void run(int numGen, int size, int motifSize) {
-		//population = new Population(size, motifSize);
-		//population.generatePopulation(size, motifSize);
+		// population = new Population(size, motifSize);
+		// population.generatePopulation(size, motifSize);
 		population.rpsGeneratePopulation(size, motifSize, sequences);
-		//population.getPopulation().add(new Individual("TTTACCCGGCC"));
+		// population.getPopulation().add(new Individual("TTTACCCGGCC"));
 		Selection select = new Selection();
-		
-		double threshold = 0.8;
-		
+		CrossOver crossOver = new CrossOver();
+
+		double threshold = 0.85;
+
 		for (int gen = 0; gen < numGen; gen++) {
 
 			population.calculateFitness(sequences);
 
-			
-
-			System.out.println("---------------Gen " + gen +  "----------------");
+			System.out
+					.println("---------------Gen " + gen + "----------------");
 			for (int k = 0; k < 10; k++) {
 				System.out.println(population.getPopulation().get(k));
 			}
-			
+
 			if (gen == numGen - 1) {
 				break;
 			}
-			
+
 			ArrayList<Individual> newPopulation = new ArrayList<>();
 			float i = 0;
+			int remaining = 0;
 
-			for (int j = 0; j < size; j++) {
-				if (i / size <= 0.95) {
-				//if (i <  (size - 2)) {
-					Individual newInd1, newInd2;
-					do {
-						newInd1 = crossOver(select.roulletSelection(),
-								select.roulletSelection());
-					} while (population.presentInPopulation(newInd1,newPopulation) > threshold);
-
-					do {
-						newInd2 = crossOver(select.roulletSelection(),
-								select.roulletSelection());
-					} while (population.presentInPopulation(newInd2,newPopulation) > threshold);
-
-					newPopulation.add(newInd1);
-					newPopulation.add(newInd2);
-					i += 2;
-				} else {
-					break;
-				}
-				
+			for (int j = 0; j < size * 0.05; j++) {
+				newPopulation.add(population.getPopulation().get(j));
+				remaining++;
 			}
-			
-			for (int j = 0; j < size - i; j++) {
-				//if(population.presentInPopulation(population.getPopulation().get(j),newPopulation) <= 0.9){
-					newPopulation.add(population.getPopulation().get(j));
-				//}
+
+			for (int j = 0; j < size - remaining; j++) {
+				// if (i / size <= 0.95) {
+				// if (i < (size - 2)) {
+				Individual newInd1, newInd2;
+				Individual temp1, temp2;
+				do {
+					temp1 = select.roulletSelection();
+					temp2 = select.roulletSelection();
+					newInd1 = crossOver.twoPointCO(temp1, temp2);
+				} while (population.presentInPopulation(newInd1, newPopulation) > threshold);
+
+				do {
+					temp1 = select.roulletSelection();
+					temp2 = select.roulletSelection();
+					newInd2 = crossOver.twoPointCO(temp1, temp2);
+				} while (population.presentInPopulation(newInd2, newPopulation) > threshold);
+
+				newPopulation.add(newInd1);
+				newPopulation.add(newInd2);
+				i += 2;
+				// } else {
+				// break;
+				// }
+
 			}
-			
-			population.setPopulation((ArrayList<Individual>) newPopulation.clone());
+
+			population.setPopulation((ArrayList<Individual>) newPopulation
+					.clone());
 		}
 
 		System.out.println("------------------------------------");
@@ -193,12 +160,12 @@ public class Genetic {
 	public static void main(String[] args) {
 		Genetic g = new Genetic();
 		g.readFile("input/YDR026c_YPD.fasta");
-		//g.readFile("2p53.fasta");
-		//g.readFile("hm20g.fasta");
+		// g.readFile("2p53.fasta");
+		// g.readFile("hm20g.fasta");
 		System.out.println(g.getSequences().size() + " Sequences");
 		for (int k = 0; k < 1; k++) {
-			g.run(50, 100, 8);
-			
+			g.run(1, 100, 29);
+
 			System.out.println("finished");
 			for (Individual ind : Population.getInstance().getPopulation()) {
 				ind.writeToFile();
@@ -206,6 +173,5 @@ public class Genetic {
 			g.writeToFile();
 		}
 	}
-	
-	
+
 }
