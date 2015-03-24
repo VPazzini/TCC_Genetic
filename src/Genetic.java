@@ -127,8 +127,11 @@ public class Genetic {
 		//population = new Population(size, motifSize);
 		//population.generatePopulation(size, motifSize);
 		population.rpsGeneratePopulation(size, motifSize, sequences);
-		population.getPopulation().add(new Individual("TTTACCCGGCC"));
+		//population.getPopulation().add(new Individual("TTTACCCGGCC"));
 		Selection select = new Selection();
+		
+		double threshold = 0.8;
+		
 		for (int gen = 0; gen < numGen; gen++) {
 
 			population.calculateFitness(sequences);
@@ -146,45 +149,39 @@ public class Genetic {
 			
 			ArrayList<Individual> newPopulation = new ArrayList<>();
 			float i = 0;
-			//for (int j = 0; j < population.size(); j += 1) {
-			for (int j = 0; j < size; j += 1) {
-				//if (i / population.size() <= 0.95) {
-				//if (i <  (population.size() - 2)) {
-				if (i <  (size - 2)) {
+
+			for (int j = 0; j < size; j++) {
+				if (i / size <= 0.95) {
+				//if (i <  (size - 2)) {
 					Individual newInd1, newInd2;
 					do {
 						newInd1 = crossOver(select.roulletSelection(),
 								select.roulletSelection());
-					} while (population.presentInPopulation(newInd1,newPopulation) > 0.8);
+					} while (population.presentInPopulation(newInd1,newPopulation) > threshold);
 
 					do {
 						newInd2 = crossOver(select.roulletSelection(),
 								select.roulletSelection());
-					} while (population.presentInPopulation(newInd2,newPopulation) > 0.8);
+					} while (population.presentInPopulation(newInd2,newPopulation) > threshold);
 
 					newPopulation.add(newInd1);
 					newPopulation.add(newInd2);
-
+					i += 2;
 				} else {
 					break;
 				}
-				i += 2;
+				
 			}
-			//for (int j = 0; j < population.size() - i; j++) {
+			
 			for (int j = 0; j < size - i; j++) {
-				newPopulation.add(population.getPopulation().get(j));
+				//if(population.presentInPopulation(population.getPopulation().get(j),newPopulation) <= 0.9){
+					newPopulation.add(population.getPopulation().get(j));
+				//}
 			}
-			/*
-			 * for(int k=0;k<newPopulation.size();k++){
-			 * System.out.println(population.get(k) + " " +
-			 * newPopulation.get(k)); }
-			 */
-			// System.out.println("----------------------------------------------------------------");
+			
 			population.setPopulation((ArrayList<Individual>) newPopulation.clone());
 		}
-		/*
-		 * for (Individual ind : population) { System.out.println(ind); }
-		 */
+
 		System.out.println("------------------------------------");
 
 	}
@@ -200,20 +197,11 @@ public class Genetic {
 		//g.readFile("hm20g.fasta");
 		System.out.println(g.getSequences().size() + " Sequences");
 		for (int k = 0; k < 1; k++) {
-			g.run(50, 100, 11);
-
-			//System.out.println();
-
-			int i = 0;
+			g.run(50, 100, 8);
+			
 			System.out.println("finished");
 			for (Individual ind : Population.getInstance().getPopulation()) {
 				ind.writeToFile();
-				/*if (i < 10) {
-					ind.writeToFile();
-				} else {
-					break;
-				}
-				i++;*/
 			}
 			g.writeToFile();
 		}

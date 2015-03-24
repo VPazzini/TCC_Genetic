@@ -136,7 +136,7 @@ public class Population {
 		float biggest = -1;
 		for (Individual i : individuals) {
 			if (i != ind) {
-				float f = find(i.getSequence(), ind.getSequence());
+				float f = similarity(i.getSequence(), ind.getSequence());
 				if (f > biggest) {
 					biggest = f;
 				}
@@ -153,7 +153,7 @@ public class Population {
 		float biggest = -1;
 		for (Individual i : l) {
 			if (i != ind) {
-				float f = find(i.getSequence(), ind.getSequence());
+				float f = similarity(i.getSequence(), ind.getSequence());
 				if (f > biggest) {
 					biggest = f;
 				}
@@ -216,6 +216,20 @@ public class Population {
 		}
 		this.sort();
 	}
+	
+	public float similarity(String motif, String seq) {
+		if (motif.length() != seq.length()) {
+			return 0;
+		}
+		float match = 0;
+		for (int i = 0; i < motif.length(); i++) {
+			if (motif.charAt(i) == seq.charAt(i)) {
+				match++;
+			}
+		}
+		return match / motif.length();
+	}
+
 
 	public float find(String motif, String seq) {
 		if (motif.length() != seq.length()) {
@@ -229,7 +243,7 @@ public class Population {
 		}
 		return match / motif.length();
 	}
-
+	
 	public float find2(String motif, String seq) {
 		if (motif.length() != seq.length()) {
 			return 0;
