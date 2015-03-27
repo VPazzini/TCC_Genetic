@@ -100,6 +100,9 @@ public class Individual {
 
 	public String consensus() {
 		float[][] m = matrix();
+		if(matches.isEmpty()){
+			return sequence;
+		}
 		String cons = "";
 		float max = 0;
 		int pos = 0;

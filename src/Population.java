@@ -167,7 +167,7 @@ public class Population {
 
 	public float findInSequence(Individual ind, String seq, boolean verbose) {
 		float match1, match2, temp = 0;
-		double threshold = 0.8;
+		double threshold = 0.7;
 		String s = "";
 		String subSeq = "";
 		String tempSeq = "";

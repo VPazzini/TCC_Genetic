@@ -87,10 +87,7 @@ public class Genetic {
 	}
 
 	public void run(int numGen, int size, int motifSize) {
-		// population = new Population(size, motifSize);
-		// population.generatePopulation(size, motifSize);
 		population.rpsGeneratePopulation(size, motifSize, sequences);
-		// population.getPopulation().add(new Individual("TTTACCCGGCC"));
 		Selection select = new Selection();
 		CrossOver crossOver = new CrossOver();
 
@@ -160,11 +157,12 @@ public class Genetic {
 	public static void main(String[] args) {
 		Genetic g = new Genetic();
 		g.readFile("input/YDR026c_YPD.fasta");
+		//g.readFile("input/ABF1_YPD.fsa");
 		// g.readFile("2p53.fasta");
 		// g.readFile("hm20g.fasta");
 		System.out.println(g.getSequences().size() + " Sequences");
 		for (int k = 0; k < 1; k++) {
-			g.run(1, 100, 29);
+			g.run(50, 100, 11);
 
 			System.out.println("finished");
 			for (Individual ind : Population.getInstance().getPopulation()) {
