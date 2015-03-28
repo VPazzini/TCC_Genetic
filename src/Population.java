@@ -68,7 +68,8 @@ public class Population {
 	public void rpsGeneratePopulation(int size, int motifSize,
 			ArrayList<String> fullSeqs) {
 
-		int hashSize = (motifSize / 2) + 1;
+		//int hashSize = (motifSize / 2);
+		int hashSize = (int)Math.ceil((Math.log(size)/Math.log(4)));
 		int pos;
 		ArrayList<Integer> positions = new ArrayList<>();
 		Random r = new Random();
