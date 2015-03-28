@@ -172,6 +172,16 @@ public class Population {
 		}
 		this.sort();
 	}
+	
+	public void cleanDuplicates(){
+		ArrayList<Individual> cleaned = new ArrayList<>();
+		for(Individual ind:individuals){
+			if(!cleaned.contains(ind)){
+				cleaned.add(ind);
+			}
+		}
+		individuals = cleaned;
+	}
 
 	public float similarity(String motif, String seq) {
 		if (motif.length() != seq.length()) {

@@ -76,8 +76,7 @@ public class Individual {
 		float[][] matrix = new float[4][sequence.length()];
 		for (int i = 0; i < sequence.length(); i++) {
 			for (Sequence key : matches.keySet()) {
-				// for (int j = 0; j < matches2.size(); j++) {
-				// switch (matches2.get(j).charAt(i)) {
+
 				int init = matches.get(key);
 				switch (key.getSubSequence(init, sequence.length()).charAt(i)) {
 				case ('A'):
@@ -97,7 +96,6 @@ public class Individual {
 		}
 		for (int i = 0; i < sequence.length(); i++) {
 			for (int j = 0; j < 4; j++) {
-				// matrix[j][i] /= matches2.size();
 				matrix[j][i] /= matches.size();
 			}
 		}
@@ -166,12 +164,15 @@ public class Individual {
 			output = new BufferedWriter(new FileWriter(file, true));
 			// writer = new PrintWriter("output.txt", "UTF-8");
 
-			output.write("Motif: " + sequence + "| Fitness: " + this.fitness
+			output.write("Motif:\t" + sequence + "| Fitness: " + this.fitness
 					+ "\n");
-			output.write(matches.size() + " Occurences:\n");
-			// for (String m : matches2) {
+			output.write("Consensus:\t" + this.consensus() + "\n");
+			output.write("Matches:\n");
+			
+			int seqN = 0;
 			for (Sequence seq : matches.keySet()) {
 				String m = seq.getSubSequence(matches.get(seq), this.sequence.length());
+				output.write(seqN++ + ".\t");
 				for (int i = 0; i < m.length(); i++) {
 					if (m.charAt(i) == this.sequence.charAt(i)) {
 						output.write((m.charAt(i) + "").toUpperCase());

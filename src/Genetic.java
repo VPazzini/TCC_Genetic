@@ -3,9 +3,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.sql.Time;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Genetic {
 
@@ -80,49 +78,55 @@ public class Genetic {
 	}*/
 
 	@SuppressWarnings("unchecked")
-	public void run(int numGen, int size, int motifSize) {
-		double t1 = System.currentTimeMillis();
-		
-		population.generatePopulation(size, motifSize);
-		//population.rpsGeneratePopulation(size, motifSize, sequences);
+	public void run(int maxGens, int size, int motifSize) {
 		Selection select = new Selection();
 		CrossOver crossOver = new CrossOver();
-
-		double threshold = 0.85;
-		//HashMap<String, Integer> history = new HashMap<>();
+		double t1 = System.currentTimeMillis();
 		
-		for (int gen = 0; gen < numGen; gen++) {
+		//Generate the initial population
+		//population.generatePopulation(size, motifSize);
+		population.rpsGeneratePopulation(size, motifSize, sequences);
+		
+		//Threshold value that determines how much of a new Individual can be equal
+		//to another individual in the population, using it to increase diversity
+		double threshold = 0.85;
+		
+		//Main loop
+		for (int gen = 0; gen < maxGens; gen++) {
 
 			population.calculateFitness(sequences);
 
 			System.out
 					.println("Generation " + gen + " | time " +  (System.currentTimeMillis() - t1)/1000);
+			
+			population.cleanDuplicates();
+			
 			t1 = System.currentTimeMillis();
 			for (int k = 0; k < 10; k++) {
-				System.out.println(population.getPopulation().get(k));
+				if(k < population.getPopulation().size()){
+					System.out.println(population.getPopulation().get(k));
+				}
 			}
 
-			if (gen == numGen - 1) {
+			if (gen == maxGens - 1) {
 				break;
 			}
 
 			ArrayList<Individual> newPopulation = new ArrayList<>();
-			int remaining = 0;
-
-			// for (int j = 0; j <= size * 0.02; j++) {
-			for (int j = 0; j <= 0; j++) {
+			int spaceUsed = 0;
+			
+			//Save the more adapted individual from the current generation
+			//to the new generation
+			for (int j = 0; j < size*0.01; j++) {
 				newPopulation.add(population.getPopulation().get(j));
-				remaining++;
+				spaceUsed++;
 			}
-
-			/*
-			 * int popSize = newPopulation.size(); for (int j = 1; j < popSize;
-			 * j++) {
-			 * newPopulation.add(crossOver.bestOfEach(newPopulation.get(0)
-			 * ,newPopulation.get(j))); remaining++; }
-			 */
-
-			for (int j = 0; j < size - remaining; j += 3) {
+			
+			//Fill up the remaining population space using crossover methods
+			//and try to increase the diversity, the while statement should
+			//be all OR's instead of AND's but it would increase the computational
+			//cost a lot
+			for (int j = 0; j < size - spaceUsed; j += 3) {
 
 				Individual newInd1, newInd2, newInd3;
 				Individual temp1, temp2;
@@ -144,25 +148,14 @@ public class Genetic {
 
 			}
 
-			/*
-			 * for(Individual ind : population.getPopulation()){
-			 * if(!history.containsKey(ind.getSequence())){
-			 * history.put(ind.getSequence(), 1); }else{ int v =
-			 * history.get(ind.getSequence()); history.put(ind.getSequence(),
-			 * v+1); } }
-			 */
-
 			population.setPopulation((ArrayList<Individual>) newPopulation
 					.clone());
 		}
+		
+		population.cleanDuplicates();
 
 		System.out.println("------------------------------------");
-		/*
-		 * int sum = 0; for(String key : history.keySet()){
-		 * System.out.println(key + " - " + history.get(key)); sum +=
-		 * history.get(key); } System.out.println("Number of sequences tested "
-		 * + history.size()); System.out.println("Number of tests " + sum);
-		 */
+
 	}
 
 	public void resetPopulation() {
@@ -175,7 +168,7 @@ public class Genetic {
 		// g.readFile("input/ABF1_YPD.fsa");
 		System.out.println(g.getSequences().size() + " Sequences");
 		for (int k = 0; k < 1; k++) {
-			g.run(10, 5000, 11);
+			g.run(100, 5000, 11);
 
 			System.out.println("finished");
 			for (Individual ind : Population.getInstance().getPopulation()) {
