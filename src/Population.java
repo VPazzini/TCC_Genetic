@@ -66,7 +66,7 @@ public class Population {
 	}
 
 	public void rpsGeneratePopulation(int size, int motifSize,
-			ArrayList<String> fullSeqs) {
+			ArrayList<Sequence> sequences) {
 
 		//int hashSize = (motifSize / 2);
 		int hashSize = (int)Math.ceil((Math.log(size)/Math.log(4)));
@@ -77,9 +77,9 @@ public class Population {
 		ArrayList<String> seqs = new ArrayList<>();
 
 		for (int k = 0; k < 1; k++) {
-			for (String s : fullSeqs) {
-				for (int i = 0; i < s.length() - motifSize; i++) {
-					seqs.add(s.substring(i, i + motifSize));
+			for (Sequence s : sequences) {
+				for (int i = 0; i < s.lenght() - motifSize; i++) {
+					seqs.add(s.getSequence().substring(i, i + motifSize));
 				}
 			}
 		}
@@ -201,18 +201,19 @@ public class Population {
 		return temp;
 	}
 
-	public void findInAllSequences(ArrayList<String> sequences, Individual ind,
+	public void findInAllSequences(ArrayList<Sequence> sequences, Individual ind,
 			boolean verb) {
 		if (ind.getFitness() == 1) {
 			int i = 0;
-			for (String seq : sequences) {
+			for (Sequence seq : sequences) {
 				// System.out.println("seq" + i++);
-				findInSequence(ind, seq, verb);
+				seq.findInSequence(ind, verb);
+				//findInSequence(ind, seq, verb);
 			}
 		}
 	}
 
-	public void calculateFitness(ArrayList<String> sequences) {
+	public void calculateFitness(ArrayList<Sequence> sequences) {
 		for (Individual ind : individuals) {
 			findInAllSequences(sequences, ind, false);
 			totalFitness += ind.getFitness();

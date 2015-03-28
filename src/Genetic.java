@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class Genetic {
 
-	private ArrayList<String> sequences = new ArrayList<>();
+	private ArrayList<Sequence> sequences = new ArrayList<>();
 	private Population population;
 
 	public Genetic() {
@@ -22,21 +22,28 @@ public class Genetic {
 			BufferedReader out = new BufferedReader(fw);
 			String line;
 			String tempSequence = "";
+			String seqName = "";
 			while ((line = out.readLine()) != null) {
 				if (line.length() > 0) {
 					char c = line.charAt(0);
 					if (c == 'A' || c == 'C' || c == 'T' || c == 'G') {
 						tempSequence += line.trim();
+					} else if (c == '>') {
+						if(!seqName.equals("")){
+							sequences.add(new Sequence(seqName, tempSequence));
+							tempSequence = "";
+						}
+						seqName = line.split(" ")[0].substring(1);
 					} else {
 						if (!tempSequence.isEmpty()) {
-							sequences.add(tempSequence);
+							sequences.add(new Sequence(seqName, tempSequence));
 							tempSequence = "";
 						}
 					}
 				}
 			}
 			if (!tempSequence.isEmpty()) {
-				sequences.add(tempSequence);
+				sequences.add(new Sequence(seqName, tempSequence));
 			}
 			out.close();
 
@@ -63,13 +70,13 @@ public class Genetic {
 
 	}
 
-	public ArrayList<String> getSequences() {
+	public ArrayList<Sequence> getSequences() {
 		return sequences;
 	}
 
-	public void setSequences(ArrayList<String> sequences) {
+	/*public void setSequences(ArrayList<String> sequences) {
 		this.sequences = sequences;
-	}
+	}*/
 
 	public void run(int numGen, int size, int motifSize) {
 
