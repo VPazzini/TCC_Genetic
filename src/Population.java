@@ -68,19 +68,17 @@ public class Population {
 	public void rpsGeneratePopulation(int size, int motifSize,
 			ArrayList<Sequence> sequences) {
 
-		//int hashSize = (motifSize / 2);
-		int hashSize = (int)Math.ceil((Math.log(size)/Math.log(4)));
+		// int hashSize = (motifSize / 2);
+		int hashSize = (int) Math.ceil((Math.log(size) / Math.log(4)));
 		int pos;
 		ArrayList<Integer> positions = new ArrayList<>();
 		Random r = new Random();
 
 		ArrayList<String> seqs = new ArrayList<>();
 
-		for (int k = 0; k < 1; k++) {
-			for (Sequence s : sequences) {
-				for (int i = 0; i < s.lenght() - motifSize; i++) {
-					seqs.add(s.getSequence().substring(i, i + motifSize));
-				}
+		for (Sequence s : sequences) {
+			for (int i = 0; i < s.lenght() - motifSize; i++) {
+				seqs.add(s.getSequence().substring(i, i + motifSize));
 			}
 		}
 
@@ -105,24 +103,12 @@ public class Population {
 			buckets.get(hash).add(seq);
 		}
 
-		ArrayList<Individual> temp = new ArrayList<>();
 		for (String hash : buckets.keySet()) {
-			Individual ind = null;
-			for (String s : buckets.get(hash)) {
-
-				if (ind == null) {
-					ind = new Individual(s);
-				} else {
-					ind.getMatches().add(s);
-				}
-			}
-			temp.add(ind);
+			Individual ind = new Individual(Util.consensus(buckets.get(hash)));
+			individuals.add(ind);
 
 		}
 
-		for (int i = 0; i < temp.size(); i++) {
-			individuals.add(new Individual(temp.get(i).consensus()));
-		}
 	}
 
 	public String generateMotif(int size) {
@@ -166,49 +152,15 @@ public class Population {
 		return biggest;
 	}
 
-	public float findInSequence(Individual ind, String seq, boolean verbose) {
-		float match1, match2, temp = 0;
-		double threshold = 0.7;
-		String s = "";
-		String subSeq = "";
-		String tempSeq = "";
-		String motif = ind.getSequence();
-		for (int i = 0; i < seq.length() - motif.length(); i++) {
-			subSeq = seq.substring(i, i + motif.length());
 
-			match1 = similarity(motif, subSeq);
-			match2 = similarity(ind.getRevSequence(), subSeq);
-			if (match1 >= threshold && match1 > temp && match1 > match2) {
-				// if (match1 >= Math.pow(2, motif.length()-2)-1 && match1 >
-				// temp && match1 >= match2) {
-				temp = find(motif, subSeq);
-				;
-				tempSeq = subSeq;
-			}
-			if (match2 >= threshold && match2 > temp && match2 > match1) {
-				// if (match2 >= Math.pow(2, motif.length()-2)-1 && match2 >
-				// temp && match2 >= match1) {
-				temp = find(ind.getRevSequence(), subSeq);
-				tempSeq = reverse(subSeq);
-			}
-		}
-
-		if (temp > 0) {
-			ind.setPresence(ind.getPresence() + 1);
-			ind.setFitness(ind.getFitness() + temp);
-			ind.getMatches().add(tempSeq);
-		}
-		return temp;
-	}
-
-	public void findInAllSequences(ArrayList<Sequence> sequences, Individual ind,
-			boolean verb) {
+	public void findInAllSequences(ArrayList<Sequence> sequences,
+			Individual ind, boolean verb) {
 		if (ind.getFitness() == 1) {
 			int i = 0;
 			for (Sequence seq : sequences) {
 				// System.out.println("seq" + i++);
 				seq.findInSequence(ind, verb);
-				//findInSequence(ind, seq, verb);
+				// findInSequence(ind, seq, verb);
 			}
 		}
 	}

@@ -3,6 +3,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -78,21 +79,25 @@ public class Genetic {
 		this.sequences = sequences;
 	}*/
 
+	@SuppressWarnings("unchecked")
 	public void run(int numGen, int size, int motifSize) {
-
-		// population.generatePopulation(size, motifSize);
-		population.rpsGeneratePopulation(size, motifSize, sequences);
+		double t1 = System.currentTimeMillis();
+		
+		population.generatePopulation(size, motifSize);
+		//population.rpsGeneratePopulation(size, motifSize, sequences);
 		Selection select = new Selection();
 		CrossOver crossOver = new CrossOver();
 
 		double threshold = 0.85;
-		HashMap<String, Integer> history = new HashMap<>();
+		//HashMap<String, Integer> history = new HashMap<>();
+		
 		for (int gen = 0; gen < numGen; gen++) {
 
 			population.calculateFitness(sequences);
 
 			System.out
-					.println("---------------Gen " + gen + "----------------");
+					.println("Generation " + gen + " | time " +  (System.currentTimeMillis() - t1)/1000);
+			t1 = System.currentTimeMillis();
 			for (int k = 0; k < 10; k++) {
 				System.out.println(population.getPopulation().get(k));
 			}
@@ -102,7 +107,6 @@ public class Genetic {
 			}
 
 			ArrayList<Individual> newPopulation = new ArrayList<>();
-			float i = 0;
 			int remaining = 0;
 
 			// for (int j = 0; j <= size * 0.02; j++) {
@@ -137,7 +141,6 @@ public class Genetic {
 				newPopulation.add(newInd1);
 				newPopulation.add(newInd2);
 				newPopulation.add(newInd3);
-				i += 3;
 
 			}
 

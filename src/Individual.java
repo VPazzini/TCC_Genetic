@@ -5,13 +5,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Individual {
 	private float fitness = 1;
 	private String sequence;
 	private String revSequence;
 	private int presence = 0;
-	private ArrayList<String> matches = new ArrayList<>();
+	private ArrayList<String> matches2 = new ArrayList<>();
+	private HashMap<Sequence, Integer> matches = new HashMap<>();
 	String[] nucleotides = { "A", "C", "T", "G" };
 
 	public Individual(float fitness, String sequence) {
@@ -66,15 +68,18 @@ public class Individual {
 		this.presence = presence;
 	}
 
-	public ArrayList<String> getMatches() {
+	public HashMap<Sequence, Integer> getMatches() {
 		return matches;
 	}
 
 	public float[][] matrix() {
 		float[][] matrix = new float[4][sequence.length()];
 		for (int i = 0; i < sequence.length(); i++) {
-			for (int j = 0; j < matches.size(); j++) {
-				switch (matches.get(j).charAt(i)) {
+			for (Sequence key : matches.keySet()) {
+				// for (int j = 0; j < matches2.size(); j++) {
+				// switch (matches2.get(j).charAt(i)) {
+				int init = matches.get(key);
+				switch (key.getSubSequence(init, sequence.length()).charAt(i)) {
 				case ('A'):
 					matrix[0][i]++;
 					break;
@@ -92,6 +97,7 @@ public class Individual {
 		}
 		for (int i = 0; i < sequence.length(); i++) {
 			for (int j = 0; j < 4; j++) {
+				// matrix[j][i] /= matches2.size();
 				matrix[j][i] /= matches.size();
 			}
 		}
@@ -100,7 +106,7 @@ public class Individual {
 
 	public String consensus() {
 		float[][] m = matrix();
-		if(matches.isEmpty()){
+		if (matches.isEmpty()) {
 			return sequence;
 		}
 		String cons = "";
@@ -163,7 +169,9 @@ public class Individual {
 			output.write("Motif: " + sequence + "| Fitness: " + this.fitness
 					+ "\n");
 			output.write(matches.size() + " Occurences:\n");
-			for (String m : matches) {
+			// for (String m : matches2) {
+			for (Sequence seq : matches.keySet()) {
+				String m = seq.getSubSequence(matches.get(seq), this.sequence.length());
 				for (int i = 0; i < m.length(); i++) {
 					if (m.charAt(i) == this.sequence.charAt(i)) {
 						output.write((m.charAt(i) + "").toUpperCase());
@@ -174,8 +182,8 @@ public class Individual {
 				output.write(" | "
 						+ Population.getInstance().find(this.sequence, m)
 						+ " | "
-						+ Population.getInstance().similarity(this.sequence, m) * 100
-						+ "%\n");
+						+ Population.getInstance().similarity(this.sequence, m)
+						* 100 + "% | " + seq.getName() + " (" + matches.get(seq)  + ")\n");
 			}
 			float[][] m = matrix();
 			for (int j = 0; j < 4; j++) {
