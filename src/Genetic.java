@@ -99,9 +99,11 @@ public class Genetic {
 			System.out
 					.println("Generation " + gen + " | time " +  (System.currentTimeMillis() - t1)/1000);
 			
+			t1 = System.currentTimeMillis();
+			
 			population.cleanDuplicates();
 			
-			t1 = System.currentTimeMillis();
+			
 			for (int k = 0; k < 10; k++) {
 				if(k < population.getPopulation().size()){
 					System.out.println(population.getPopulation().get(k));
@@ -165,10 +167,10 @@ public class Genetic {
 	public static void main(String[] args) {
 		Genetic g = new Genetic();
 		g.readFile("input/YDR026c_YPD.fasta");
-		// g.readFile("input/ABF1_YPD.fsa");
+		//g.readFile("input/ABF1_YPD.fsa");
 		System.out.println(g.getSequences().size() + " Sequences");
 		for (int k = 0; k < 1; k++) {
-			g.run(100, 5000, 11);
+			g.run(10, 2500, 11);
 
 			System.out.println("finished");
 			for (Individual ind : Population.getInstance().getPopulation()) {

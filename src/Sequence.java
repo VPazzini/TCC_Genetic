@@ -11,8 +11,8 @@ public class Sequence {
 	}
 
 	public float findInSequence(Individual ind, boolean verbose) {
-		float match1, match2, temp = 0;
-		double threshold = 0.7;
+		float match1, match2, temp = 0, find1, find2;
+		double threshold = 0.3;
 		String subSeq = "", tempSeq = "";
 		String motif = ind.getSequence();
 		int initSeq = 0;
@@ -21,15 +21,18 @@ public class Sequence {
 
 			match1 = similarity(motif, subSeq);
 			match2 = similarity(Util.reverse(motif), subSeq);
-			if (match1 >= threshold && match1 > temp && match1 > match2) {
-				temp = find(motif, subSeq);
+			find1 = find(motif, subSeq);
+			find2 = find(ind.getRevSequence(), subSeq);
+			
+			if (match1 >= threshold && find1 > temp && find1 > find2) {
+				temp = find1;
 				tempSeq = subSeq;
-				initSeq = i;
+				initSeq = i+1;
 			}
-			if (match2 >= threshold && match2 > temp && match2 > match1) {
-				temp = find(ind.getRevSequence(), subSeq);
+			if (match2 >= threshold && find2 > temp && find2 > find1) {
+				temp = find2;
 				tempSeq = Util.reverse(subSeq);
-				initSeq = -i;
+				initSeq = -(i+1);
 			}
 		}
 
@@ -89,7 +92,8 @@ public class Sequence {
 	}
 
 	public String getSubSequence(int init, int size) {
-		String seq = this.sequence.substring(Math.abs(init), Math.abs(init) + size);
+		int absInit = Math.abs(init) - 1;
+		String seq = this.sequence.substring(absInit, absInit + size);
 		return init >= 0 ? seq : Util.reverse(seq);
 	}
 
