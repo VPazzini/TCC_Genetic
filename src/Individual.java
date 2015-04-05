@@ -9,10 +9,13 @@ import java.util.HashMap;
 
 public class Individual {
 	private float fitness = 1;
+	private float fitness2 = 1;
+
+
 	private String sequence;
 	private String revSequence;
 	private int presence = 0;
-	private ArrayList<String> matches2 = new ArrayList<>();
+
 	private HashMap<Sequence, Integer> matches = new HashMap<>();
 	String[] nucleotides = { "A", "C", "T", "G" };
 
@@ -72,34 +75,148 @@ public class Individual {
 		return matches;
 	}
 
-	public float[][] matrix() {
-		float[][] matrix = new float[4][sequence.length()];
-		for (int i = 0; i < sequence.length(); i++) {
-			for (Sequence key : matches.keySet()) {
+	public void addMatch(Sequence s, int init) {
+		matches.put(s, init);
+		this.changed = true;
+	}
+	
+	public float getFitness2() {
+		return fitness2;
+	}
+	
+	public void addToFitness2(float n) {
+		fitness2 += n;
+	}
 
-				int init = matches.get(key);
-				switch (key.getSubSequence(init, sequence.length()).charAt(i)) {
-				case ('A'):
-					matrix[0][i]++;
-					break;
-				case ('C'):
-					matrix[1][i]++;
-					break;
-				case ('T'):
-					matrix[2][i]++;
-					break;
-				case ('G'):
-					matrix[3][i]++;
-					break;
-				}
+	public void setFitness2(float fitness2) {
+		this.fitness2 = fitness2;
+	}
+
+	public float pwm(Sequence seq, String subSeq) {
+
+		float[] count = seq.getFreq();
+		float[][] m = matrix();
+		for (char c : subSeq.toCharArray()) {
+			switch (c) {
+			case ('A'):
+				count[0]--;
+				break;
+			case ('C'):
+				count[1]--;
+				break;
+			case ('T'):
+				count[2]--;
+				break;
+			case ('G'):
+				count[3]--;
+				break;
 			}
+		}
+		for (int i = 0; i < 4; i++) {
+			count[i] /= (seq.lenght() - sequence.length());
 		}
 		for (int i = 0; i < sequence.length(); i++) {
 			for (int j = 0; j < 4; j++) {
-				matrix[j][i] /= matches.size();
+				m[j][i] /= count[j];
 			}
 		}
-		return matrix;
+
+		float score = 0;
+		int index = 0;
+		for (char c : subSeq.toCharArray()) {
+			switch (c) {
+			case ('A'):
+				score += Math.log(m[0][index]);
+				break;
+			case ('C'):
+				score += Math.log(m[1][index]);
+				break;
+			case ('T'):
+				score += Math.log(m[2][index]);
+				break;
+			case ('G'):
+				score += Math.log(m[3][index]);
+				break;
+			}
+			index++;
+		}
+
+		// if (score > 0)
+
+		// System.out.println(seq.getName() + " " + init + " "+
+		// seq.getSubSequence(init, sequence.length()) + " "+ score);
+
+		return score;
+
+	}
+
+	private boolean changed = true;
+	private float[][] pwmMatrix;
+
+	public float[][] matrix() {
+		if (changed) {
+			pwmMatrix = new float[4][sequence.length()];
+
+			for (int i = 0; i < sequence.length(); i++) {
+				for (int j = 0; j < 4; j++) {
+					pwmMatrix[j][i] = (float) 0.01;
+				}
+			}
+
+			for (int i = 0; i < sequence.length(); i++) {
+				// for (char c : sequence.toCharArray()) {
+				switch (sequence.charAt(i)) {
+				case ('A'):
+					pwmMatrix[0][i]++;
+					break;
+				case ('C'):
+					pwmMatrix[1][i]++;
+					break;
+				case ('T'):
+					pwmMatrix[2][i]++;
+					break;
+				case ('G'):
+					pwmMatrix[3][i]++;
+					break;
+				}
+				// }
+			}
+
+			for (int i = 0; i < sequence.length(); i++) {
+				for (Sequence key : matches.keySet()) {
+
+					int init = matches.get(key);
+					switch (key.getSubSequence(init, sequence.length()).charAt(
+							i)) {
+					case ('A'):
+						pwmMatrix[0][i]++;
+						break;
+					case ('C'):
+						pwmMatrix[1][i]++;
+						break;
+					case ('T'):
+						pwmMatrix[2][i]++;
+						break;
+					case ('G'):
+						pwmMatrix[3][i]++;
+						break;
+					}
+				}
+			}
+			for (int i = 0; i < sequence.length(); i++) {
+				for (int j = 0; j < 4; j++) {
+					pwmMatrix[j][i] /= (matches.size() + 1.04);
+				}
+			}
+			changed = false;
+		}
+		float[][] temp = new float[4][sequence.length()];
+		for (int i = 0; i < sequence.length(); i++) {
+			for (int j = 0; j < 4; j++) {
+				temp[j][i] = pwmMatrix[j][i];
+			}
+		}
+		return temp;
 	}
 
 	public String consensus() {
@@ -126,7 +243,7 @@ public class Individual {
 
 	@Override
 	public String toString() {
-		return "Individual [fitness=" + fitness + ", sequence=" + sequence
+		return "Individual [fitness1=" + fitness +  ", sequence=" + sequence
 				+ ", presence=" + presence + "]";
 	}
 
@@ -168,10 +285,11 @@ public class Individual {
 					+ "\n");
 			output.write("Consensus:\t" + this.consensus() + "\n");
 			output.write("Matches:\n");
-			
+
 			int seqN = 0;
 			for (Sequence seq : matches.keySet()) {
-				String m = seq.getSubSequence(matches.get(seq), this.sequence.length());
+				String m = seq.getSubSequence(matches.get(seq),
+						this.sequence.length());
 				output.write(seqN++ + ".\t");
 				for (int i = 0; i < m.length(); i++) {
 					if (m.charAt(i) == this.sequence.charAt(i)) {
@@ -184,7 +302,8 @@ public class Individual {
 						+ Population.getInstance().find(this.sequence, m)
 						+ " | "
 						+ Population.getInstance().similarity(this.sequence, m)
-						* 100 + "% | " + seq.getName() + " (" + matches.get(seq)  + ")\n");
+						* 100 + "% | " + seq.getName() + " ("
+						+ matches.get(seq) + ")\n");
 			}
 			float[][] m = matrix();
 			for (int j = 0; j < 4; j++) {

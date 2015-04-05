@@ -28,7 +28,7 @@ public class Genetic {
 					if (c == 'A' || c == 'C' || c == 'T' || c == 'G') {
 						tempSequence += line.trim();
 					} else if (c == '>') {
-						if(!seqName.equals("")){
+						if (!seqName.equals("")) {
 							sequences.add(new Sequence(seqName, tempSequence));
 							tempSequence = "";
 						}
@@ -73,11 +73,11 @@ public class Genetic {
 		return sequences;
 	}
 
-	/*public void setSequences(ArrayList<String> sequences) {
-		this.sequences = sequences;
-	}*/
+	/*
+	 * public void setSequences(ArrayList<String> sequences) { this.sequences =
+	 * sequences; }
+	 */
 
-	@SuppressWarnings("unchecked")
 	public void run(int maxGens, int size, int motifSize) {
 		Selection select = new Selection();
 		CrossOver crossOver = new CrossOver();
@@ -89,7 +89,7 @@ public class Genetic {
 		
 		//Threshold value that determines how much of a new Individual can be equal
 		//to another individual in the population, using it to increase diversity
-		double threshold = 0.85;
+		double threshold = 0.9;
 		
 		//Main loop
 		for (int gen = 0; gen < maxGens; gen++) {
@@ -119,7 +119,7 @@ public class Genetic {
 			
 			//Save the more adapted individual from the current generation
 			//to the new generation
-			for (int j = 0; j < size*0.01; j++) {
+			for (int j = 0; j < size*0.05; j++) {
 				newPopulation.add(population.getPopulation().get(j));
 				spaceUsed++;
 			}
@@ -167,10 +167,10 @@ public class Genetic {
 	public static void main(String[] args) {
 		Genetic g = new Genetic();
 		g.readFile("input/YDR026c_YPD.fasta");
-		//g.readFile("input/ABF1_YPD.fsa");
+		// g.readFile("input/ABF1_YPD.fsa");
 		System.out.println(g.getSequences().size() + " Sequences");
 		for (int k = 0; k < 1; k++) {
-			g.run(10, 2500, 11);
+			g.run(25, 100, 11);
 
 			System.out.println("finished");
 			for (Individual ind : Population.getInstance().getPopulation()) {

@@ -3,16 +3,33 @@ public class Sequence {
 	private String sequence;
 	private String name;
 	private Integer lenght;
+	private float[] count = { 0, 0, 0, 0 };
 
 	public Sequence(String name, String seq) {
 		this.setName(name);
 		this.setSequence(seq);
 		this.lenght = sequence.length();
+		for (char c : seq.toCharArray()) {
+			switch (c) {
+			case ('A'):
+				count[0]++;
+				break;
+			case ('C'):
+				count[1]++;
+				break;
+			case ('T'):
+				count[2]++;
+				break;
+			case ('G'):
+				count[3]++;
+				break;
+			}
+		}
 	}
 
 	public float findInSequence(Individual ind, boolean verbose) {
-		float match1, match2, temp = 0, find1, find2;
-		double threshold = 0.3;
+		float match1, match2, temp = 0, temp2 = 0, find1, find2, find3, find4;
+		double threshold = 0.7;
 		String subSeq = "", tempSeq = "";
 		String motif = ind.getSequence();
 		int initSeq = 0;
@@ -21,26 +38,31 @@ public class Sequence {
 
 			match1 = similarity(motif, subSeq);
 			match2 = similarity(Util.reverse(motif), subSeq);
-			find1 = find(motif, subSeq);
-			find2 = find(ind.getRevSequence(), subSeq);
-			
+			//find3 = find(motif, subSeq);
+			//find4 = find(ind.getRevSequence(), subSeq);
+			find1 = ind.pwm(this, subSeq);
+			find2 = ind.pwm(this, Util.reverse(subSeq));
+
 			if (match1 >= threshold && find1 > temp && find1 > find2) {
 				temp = find1;
+				//temp2 = find3;
 				tempSeq = subSeq;
-				initSeq = i+1;
+				initSeq = i + 1;
 			}
 			if (match2 >= threshold && find2 > temp && find2 > find1) {
 				temp = find2;
+				//temp2 = find4;
 				tempSeq = Util.reverse(subSeq);
-				initSeq = -(i+1);
+				initSeq = -(i + 1);
 			}
 		}
 
 		if (temp > 0) {
 			ind.setPresence(ind.getPresence() + 1);
 			ind.setFitness(ind.getFitness() + temp);
-			//ind.getMatches().add(tempSeq);
-			ind.getMatches().put(this, initSeq);
+			//ind.addToFitness2(temp2);
+			// ind.getMatches().add(tempSeq);
+			ind.addMatch(this, initSeq);
 		}
 		return temp;
 	}
@@ -115,6 +137,10 @@ public class Sequence {
 
 	public int lenght() {
 		return this.lenght;
+	}
+
+	public float[] getFreq() {
+		return this.count.clone();
 	}
 
 	@Override
