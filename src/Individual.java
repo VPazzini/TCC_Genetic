@@ -243,7 +243,7 @@ public class Individual {
 
 	@Override
 	public String toString() {
-		return "Individual [fitness1=" + fitness +  ", sequence=" + sequence
+		return "Individual [fitness=" + fitness +  ", sequence=" + sequence
 				+ ", presence=" + presence + "]";
 	}
 

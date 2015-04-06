@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Random;
 
 public class CrossOver {
@@ -19,6 +20,41 @@ public class CrossOver {
 		}
 
 		return new Individual(seq);
+	}
+	
+	public ArrayList<Individual> shift(Individual ind1) {
+		Random r = new Random();
+		
+		//int divPoint = r.nextInt(ind1.getSequence().length()/2);
+		int divPoint = r.nextInt(3)+1;
+		String seq1 = ind1.getSequence().substring(divPoint);
+		seq1 += ind1.getSequence().substring(0,divPoint);
+		
+		String seq2 = ind1.getSequence().substring(ind1.getSequence().length()-divPoint);
+		seq2 += ind1.getSequence().substring(0,ind1.getSequence().length()-divPoint);
+		
+		// MUTATION
+		if (r.nextFloat() <= 0.01) {
+			String[] nucleotides = { "A", "C", "T", "G" };
+			int pos = r.nextInt(ind1.getSequence().length());
+			String p1 = seq1.substring(0, pos);
+			String p2 = seq1.substring(pos + 1);
+			seq1 = p1 + nucleotides[r.nextInt(4)] + p2;
+		}
+		// MUTATION
+		if (r.nextFloat() <= 0.01) {
+			String[] nucleotides = { "A", "C", "T", "G" };
+			int pos = r.nextInt(ind1.getSequence().length());
+			String p1 = seq2.substring(0, pos);
+			String p2 = seq2.substring(pos + 1);
+			seq2 = p1 + nucleotides[r.nextInt(4)] + p2;
+		}
+		
+		ArrayList<Individual> individuals = new ArrayList<>();
+		individuals.add(new Individual(seq1));
+		individuals.add(new Individual(seq2));
+		
+		return individuals;
 	}
 
 	public Individual bestOfEach(Individual ind1, Individual ind2) {

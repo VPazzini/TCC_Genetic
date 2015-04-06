@@ -82,30 +82,36 @@ public class Genetic {
 		Selection select = new Selection();
 		CrossOver crossOver = new CrossOver();
 		double t1 = System.currentTimeMillis();
+
+		// Generate the initial population
+		population.generatePopulation(size, motifSize);
+		//population.rpsGeneratePopulation(size, motifSize, sequences);
 		
-		//Generate the initial population
-		//population.generatePopulation(size, motifSize);
-		population.rpsGeneratePopulation(size, motifSize, sequences);
-		
-		//Threshold value that determines how much of a new Individual can be equal
-		//to another individual in the population, using it to increase diversity
+		//population.getPopulation().add(new Individual("TTGCTTTTGTT"));
+
+		// Threshold value that determines how much of a new Individual can be
+		// equal
+		// to another individual in the population, using it to increase
+		// diversity
 		double threshold = 0.9;
-		
-		//Main loop
+
+		// Main loop
+		Individual best = null;
+		int shiftCount = 0;
 		for (int gen = 0; gen < maxGens; gen++) {
 
 			population.calculateFitness(sequences);
 
-			System.out
-					.println("Generation " + gen + " | time " +  (System.currentTimeMillis() - t1)/1000);
-			
+			System.out.println("Generation " + gen + " | time "
+					+ (System.currentTimeMillis() - t1) / 1000);
+
 			t1 = System.currentTimeMillis();
-			
+
 			population.cleanDuplicates();
-			
-			
+
 			for (int k = 0; k < 10; k++) {
-				if(k < population.getPopulation().size()){
+
+				if (k < population.getPopulation().size()) {
 					System.out.println(population.getPopulation().get(k));
 				}
 			}
@@ -116,18 +122,33 @@ public class Genetic {
 
 			ArrayList<Individual> newPopulation = new ArrayList<>();
 			int spaceUsed = 0;
-			
-			//Save the more adapted individual from the current generation
-			//to the new generation
-			for (int j = 0; j < size*0.05; j++) {
+
+			if (population.getPopulation().get(0) == best) {
+				shiftCount++;
+			}else{
+				best = population.getPopulation().get(0);
+				shiftCount = 0;
+			}
+
+			// Save the more adapted individual from the current generation
+			// to the new generation
+			for (int j = 0; j < size * 0.05; j++) {
 				newPopulation.add(population.getPopulation().get(j));
 				spaceUsed++;
 			}
-			
-			//Fill up the remaining population space using crossover methods
-			//and try to increase the diversity, the while statement should
-			//be all OR's instead of AND's but it would increase the computational
-			//cost a lot
+			if (shiftCount == 5) {
+				for (int j = 0; j < size * 0.05; j++) {
+					newPopulation.addAll(crossOver.shift(population
+							.getPopulation().get(j)));
+					spaceUsed++;
+				}
+				shiftCount = 0;
+			}
+
+			// Fill up the remaining population space using crossover methods
+			// and try to increase the diversity, the while statement should
+			// be all OR's instead of AND's but it would increase the
+			// computational cost a lot
 			for (int j = 0; j < size - spaceUsed; j += 3) {
 
 				Individual newInd1, newInd2, newInd3;
@@ -135,8 +156,8 @@ public class Genetic {
 				do {
 					temp1 = select.roulletSelection();
 					temp2 = select.roulletSelection();
-					newInd1 = crossOver.twoPointCO(temp1, temp2);
-					newInd2 = crossOver.twoPointCO(temp2, temp1);
+					newInd1 = crossOver.onePointCO(temp1, temp2);
+					newInd2 = crossOver.onePointCO(temp2, temp1);
 					newInd3 = crossOver.bestOfEach(temp1, temp2);
 				} while (population.presentInPopulation(newInd1, newPopulation) > threshold
 						&& population.presentInPopulation(newInd2,
@@ -153,7 +174,7 @@ public class Genetic {
 			population.setPopulation((ArrayList<Individual>) newPopulation
 					.clone());
 		}
-		
+
 		population.cleanDuplicates();
 
 		System.out.println("------------------------------------");
@@ -166,11 +187,12 @@ public class Genetic {
 
 	public static void main(String[] args) {
 		Genetic g = new Genetic();
-		g.readFile("input/YDR026c_YPD.fasta");
-		// g.readFile("input/ABF1_YPD.fsa");
+		//g.readFile("input/YDR026c_YPD.fasta");
+		//g.readFile("input/ABF1_YPD.fsa");
+		g.readFile("input/ACE2_YPD.fsa");
 		System.out.println(g.getSequences().size() + " Sequences");
 		for (int k = 0; k < 1; k++) {
-			g.run(25, 100, 11);
+			g.run(20, 100, 11);
 
 			System.out.println("finished");
 			for (Individual ind : Population.getInstance().getPopulation()) {
