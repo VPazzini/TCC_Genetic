@@ -11,7 +11,6 @@ public class Individual {
 	private float fitness = 1;
 	private float fitness2 = 1;
 
-
 	private String sequence;
 	private String revSequence;
 	private int presence = 0;
@@ -44,7 +43,7 @@ public class Individual {
 	}
 
 	public float getFitness() {
-		return fitness;
+		return calculateFitness();
 	}
 
 	public void setFitness(float fitness) {
@@ -78,18 +77,6 @@ public class Individual {
 	public void addMatch(Sequence s, int init) {
 		matches.put(s, init);
 		this.changed = true;
-	}
-	
-	public float getFitness2() {
-		return fitness2;
-	}
-	
-	public void addToFitness2(float n) {
-		fitness2 += n;
-	}
-
-	public void setFitness2(float fitness2) {
-		this.fitness2 = fitness2;
 	}
 
 	public float pwm(Sequence seq, String subSeq) {
@@ -243,8 +230,8 @@ public class Individual {
 
 	@Override
 	public String toString() {
-		return "Individual [fitness=" + fitness +  ", sequence=" + sequence
-				+ ", presence=" + presence + "]";
+		return "Individual [fitness=" + calculateFitness() + ", sequence="
+				+ consensus() + ", presence=" + presence + "]";
 	}
 
 	@Override
@@ -269,9 +256,28 @@ public class Individual {
 		if (sequence == null) {
 			if (other.sequence != null)
 				return false;
-		} else if (!sequence.equals(other.sequence))
+			// } else if (!sequence.equals(other.sequence))
+		} else if (!consensus().equals(other.consensus()))
 			return false;
 		return true;
+	}
+
+	public float calculateFitness() {
+		float temp = 0;
+		if (matches.isEmpty()) {
+			return 1;
+		}
+		for (Sequence seq : matches.keySet()) {
+			String m = seq.getSubSequence(matches.get(seq),
+					this.sequence.length());
+
+			temp += this.pwm(seq, m);
+
+		}
+		return temp
+				/ (matches.size())
+				- ((Population.getInstance().getNumSequences() / 2) / matches
+						.size());
 	}
 
 	public void writeToFile() {
@@ -281,8 +287,8 @@ public class Individual {
 			output = new BufferedWriter(new FileWriter(file, true));
 			// writer = new PrintWriter("output.txt", "UTF-8");
 
-			output.write("Motif:\t" + sequence + "| Fitness: " + this.fitness
-					+ "\n");
+			output.write("Motif:\t" + sequence + "| Fitness: "
+					+ this.calculateFitness() + "\n");
 			output.write("Consensus:\t" + this.consensus() + "\n");
 			output.write("Matches:\n");
 
@@ -291,19 +297,22 @@ public class Individual {
 				String m = seq.getSubSequence(matches.get(seq),
 						this.sequence.length());
 				output.write(seqN++ + ".\t");
+				String con = this.consensus();
 				for (int i = 0; i < m.length(); i++) {
-					if (m.charAt(i) == this.sequence.charAt(i)) {
+					// if (m.charAt(i) == this.sequence.charAt(i)) {
+
+					if (m.charAt(i) == con.charAt(i)) {
 						output.write((m.charAt(i) + "").toUpperCase());
 					} else {
 						output.write((m.charAt(i) + "").toLowerCase());
 					}
 				}
 				output.write(" | "
-						+ Population.getInstance().find(this.sequence, m)
-						+ " | "
-						+ Population.getInstance().similarity(this.sequence, m)
-						* 100 + "% | " + seq.getName() + " ("
-						+ matches.get(seq) + ")\n");
+						// + Population.getInstance().find(this.sequence, m)
+						+ this.pwm(seq, m) + " | "
+						+ Population.getInstance().similarity(con, m) * 100
+						+ "% | " + seq.getName() + " (" + matches.get(seq)
+						+ ")\n");
 			}
 			float[][] m = matrix();
 			for (int j = 0; j < 4; j++) {

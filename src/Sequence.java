@@ -31,15 +31,16 @@ public class Sequence {
 		float match1, match2, temp = 0, temp2 = 0, find1, find2, find3, find4;
 		double threshold = 0.7;
 		String subSeq = "", tempSeq = "";
-		String motif = ind.getSequence();
+		//String motif = ind.getSequence();
+		String motif = ind.consensus();
 		int initSeq = 0;
 		for (int i = 0; i < this.sequence.length() - motif.length(); i++) {
 			subSeq = this.sequence.substring(i, i + motif.length());
 
 			match1 = similarity(motif, subSeq);
 			match2 = similarity(Util.reverse(motif), subSeq);
-			//find3 = find(motif, subSeq);
-			//find4 = find(ind.getRevSequence(), subSeq);
+			//find1 = find(motif, subSeq);
+			//find2 = find(ind.getRevSequence(), subSeq);
 			find1 = ind.pwm(this, subSeq);
 			find2 = ind.pwm(this, Util.reverse(subSeq));
 

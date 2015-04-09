@@ -9,6 +9,7 @@ public class Population {
 
 	private static Population population;
 	private int totalFitness = 0;
+	private int numSequences = 0;
 	private ArrayList<Individual> individuals = new ArrayList<>();
 
 	public Population() {
@@ -166,6 +167,7 @@ public class Population {
 	}
 
 	public void calculateFitness(ArrayList<Sequence> sequences) {
+		this.numSequences = sequences.size();
 		for (Individual ind : individuals) {
 			findInAllSequences(sequences, ind, false);
 			totalFitness += ind.getFitness();
@@ -244,5 +246,9 @@ public class Population {
 
 		return population;
 	}
-
+	
+	public int getNumSequences(){
+		return this.numSequences;
+	}
+	
 }

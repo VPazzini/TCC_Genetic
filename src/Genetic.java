@@ -51,6 +51,29 @@ public class Genetic {
 			System.exit(0);
 		}
 	}
+	
+	public ArrayList<Individual> readPopulationFile(String filePath){
+		ArrayList<Individual> inputPopulation = new ArrayList<>();
+		try {
+			inputPopulation = new ArrayList<>();
+			File newFile = new File(filePath);
+			FileReader fw = new FileReader(newFile.getAbsoluteFile());
+			BufferedReader input = new BufferedReader(fw);
+			String line;
+			while ((line = input.readLine()) != null) {
+				if (line.length() > 0) {
+					inputPopulation.add(new Individual(line.trim()));
+				}
+			}
+
+			input.close();
+
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			System.exit(0);
+		}
+		return inputPopulation;
+	}
 
 	public void writeToFile() {
 		try {
@@ -84,14 +107,15 @@ public class Genetic {
 		double t1 = System.currentTimeMillis();
 
 		// Generate the initial population
-		population.generatePopulation(size, motifSize);
+		//population.generatePopulation(size, motifSize);
 		//population.rpsGeneratePopulation(size, motifSize, sequences);
+		//population.getPopulation().addAll(readPopulationFile("YDR026c_YPD2.co.list"));
 		
-		//population.getPopulation().add(new Individual("TTGCTTTTGTT"));
+		population.getPopulation().add(new Individual("GTGTGTGTGTG"));
+		population.getPopulation().add(new Individual("CACACACACAC"));
 
 		// Threshold value that determines how much of a new Individual can be
-		// equal
-		// to another individual in the population, using it to increase
+		// equal to another individual in the population, using it to increase
 		// diversity
 		double threshold = 0.9;
 
@@ -116,7 +140,7 @@ public class Genetic {
 				}
 			}
 
-			if (gen == maxGens - 1) {
+			if (gen == maxGens - 1 || shiftCount >= maxGens*0.20) {
 				break;
 			}
 
@@ -137,12 +161,11 @@ public class Genetic {
 				spaceUsed++;
 			}
 			if (shiftCount == 5) {
-				for (int j = 0; j < size * 0.05; j++) {
+				for (int j = 0; j < size * 0.10; j++) {
 					newPopulation.addAll(crossOver.shift(population
 							.getPopulation().get(j)));
 					spaceUsed++;
 				}
-				shiftCount = 0;
 			}
 
 			// Fill up the remaining population space using crossover methods
@@ -192,7 +215,7 @@ public class Genetic {
 		g.readFile("input/ACE2_YPD.fsa");
 		System.out.println(g.getSequences().size() + " Sequences");
 		for (int k = 0; k < 1; k++) {
-			g.run(20, 100, 11);
+			g.run(1, 100, 11);
 
 			System.out.println("finished");
 			for (Individual ind : Population.getInstance().getPopulation()) {
