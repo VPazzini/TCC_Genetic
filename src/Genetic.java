@@ -108,11 +108,11 @@ public class Genetic {
 
 		// Generate the initial population
 		//population.generatePopulation(size, motifSize);
-		//population.rpsGeneratePopulation(size, motifSize, sequences);
-		//population.getPopulation().addAll(readPopulationFile("YDR026c_YPD2.co.list"));
+		population.rpsGeneratePopulation(size, motifSize, sequences);
+		//population.getPopulation().addAll(readPopulationFile("D:/wekatestes/ACE2_YPD_s15.co.list"));
 		
-		population.getPopulation().add(new Individual("GTGTGTGTGTG"));
-		population.getPopulation().add(new Individual("CACACACACAC"));
+		//population.getPopulation().add(new Individual("CCGGGTAAA"));
+		//population.getPopulation().add(new Individual("GTGTGTGTGTG"));
 
 		// Threshold value that determines how much of a new Individual can be
 		// equal to another individual in the population, using it to increase
@@ -210,12 +210,12 @@ public class Genetic {
 
 	public static void main(String[] args) {
 		Genetic g = new Genetic();
-		//g.readFile("input/YDR026c_YPD.fasta");
+		g.readFile("input/YDR026c_YPD.fasta");
 		//g.readFile("input/ABF1_YPD.fsa");
-		g.readFile("input/ACE2_YPD.fsa");
+		//g.readFile("input/ACE2_YPD.fsa");
 		System.out.println(g.getSequences().size() + " Sequences");
 		for (int k = 0; k < 1; k++) {
-			g.run(1, 100, 11);
+			g.run(100, 100, 11);
 
 			System.out.println("finished");
 			for (Individual ind : Population.getInstance().getPopulation()) {

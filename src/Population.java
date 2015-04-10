@@ -157,20 +157,19 @@ public class Population {
 	public void findInAllSequences(ArrayList<Sequence> sequences,
 			Individual ind, boolean verb) {
 		if (ind.getFitness() == 1) {
-			int i = 0;
 			for (Sequence seq : sequences) {
-				// System.out.println("seq" + i++);
 				seq.findInSequence(ind, verb);
-				// findInSequence(ind, seq, verb);
 			}
 		}
+		
 	}
 
 	public void calculateFitness(ArrayList<Sequence> sequences) {
 		this.numSequences = sequences.size();
+		
 		for (Individual ind : individuals) {
 			findInAllSequences(sequences, ind, false);
-			totalFitness += ind.getFitness();
+
 		}
 		this.sort();
 	}

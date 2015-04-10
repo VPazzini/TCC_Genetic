@@ -274,10 +274,16 @@ public class Individual {
 			temp += this.pwm(seq, m);
 
 		}
-		return temp
+		/*return temp
 				/ (matches.size())
 				- ((Population.getInstance().getNumSequences() / 2) / matches
-						.size());
+						.size());*/
+		temp = temp/(matches.size())-((3*this.sequence.length())/(matches.size()));
+		if (temp < 0){
+			return 1;
+		}else{
+			return temp;
+		}
 	}
 
 	public void writeToFile() {
